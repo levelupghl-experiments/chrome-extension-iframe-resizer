@@ -10,6 +10,37 @@
 
 // eslint-disable-next-line sonarjs/cognitive-complexity, no-shadow-restricted-names
 ;(function (undefined) {
+  ///////////////////////////////////
+  // ADDED BY JOE
+  // Helper Functions
+  function debounce(func, wait) {
+    let timeout
+    return function executedFunction() {
+      const later = () => {
+        clearTimeout(timeout)
+        func()
+      }
+      clearTimeout(timeout)
+      timeout = window.setTimeout(later, wait)
+    }
+  }
+  // Format strings as UUID for in page linking
+  // Notion uses [data-block-id=UUID] for in page linking
+  // From https://github.com/iamolegga/to-uuid/blob/master/src/index.ts
+  function toUUID(input) {
+    const value = input.padEnd(32, 0)
+    const HYPHENS_POSITIONS = [8, 12, 16, 20]
+    let array = value.split("")
+    let offset = 0
+    for (const num of HYPHENS_POSITIONS) {
+      const position = num + offset++
+      array = [...array.slice(0, position), "-", ...array.slice(position)]
+    }
+    return array.join("")
+  }
+  // END ADDED BY JOE
+  ///////////////////////////////////
+
   if (typeof window === "undefined") return // don't run for server side render
 
   var autoResize = true,
@@ -561,10 +592,15 @@
       }
 
       var hash = location.split("#")[1] || location, // Remove # if present
-        hashData = decodeURIComponent(hash),
-        target =
-          document.getElementById(hashData) ||
-          document.getElementsByName(hashData)[0]
+        hashData = decodeURIComponent(hash)
+      // target =
+      //   document.getElementById(hashData) ||
+      //   document.getElementsByName(hashData)[0]
+
+      // ADDED BY JOE
+      const target = document.querySelector(
+        `[data-block-id="${toUUID(hashData)}"]`
+      )
 
       if (undefined === target) {
         log(
@@ -587,24 +623,89 @@
       }
     }
 
+    // function bindAnchors() {
+    //   function setupLink(el) {
+    //     function linkClicked(e) {
+    //       e.preventDefault()
+
+    //       /* jshint validthis:true */
+    //       findTarget(this.getAttribute("href"))
+    //     }
+
+    //     if ("#" !== el.getAttribute("href")) {
+    //       addEventListener(el, "click", linkClicked)
+    //     }
+    //   }
+
+    //   Array.prototype.forEach.call(
+    //     document.querySelectorAll('a[href^="#"]'),
+    //     setupLink
+    //   )
+    // }
+
+    //////////////////////////////////////
+    // ADDED BY JOE
     function bindAnchors() {
+      // Test if path has the same pathname as url
+      function testPath(url, path) {
+        try {
+          // Test if path starts with a protocol
+          const href = /^\s*[a-z]{3,6}:/i.test(path)
+            ? path
+            : `${url.origin}/${path.replace(/^\//, "")}`
+          const pathname = new URL(href).pathname
+          return url.pathname.toLowerCase() === pathname.toLowerCase()
+        } catch (err) {
+          console.error("iframeResizer testPath error:", err)
+        }
+        return false
+      }
+
+      // Test if the link is a valid in page link
+      function validInPageLink(href) {
+        const src = new URL(location.href)
+        // If paths don't match, try stripping the "/NOTION-TEAM/" part of the subpath.
+        // This happens if Notion hasn't redirected yet.
+        return (
+          testPath(src, href) ||
+          testPath(src, href.replace(/^(\/[\w-]+)?\//, ""))
+        )
+      }
+
       function setupLink(el) {
         function linkClicked(e) {
-          e.preventDefault()
-
           /* jshint validthis:true */
-          findTarget(this.getAttribute("href"))
+          const href = this.getAttribute("href")
+
+          // Defer the href test until click event since notion redirects
+          // the page to add the /NOTION-TEAM/ subpath
+          if (!validInPageLink(href)) {
+            return
+          }
+
+          e.preventDefault()
+          findTarget(href)
         }
 
-        if ("#" !== el.getAttribute("href")) {
+        // Only bind the event listener once
+        // Add data-iframe-resizer attribute after processing
+        if (!el.dataset.iframeResizer) {
+          el.dataset.iframeResizer = "1"
+          const href = el.getAttribute("href").trim()
+          // Ignore links to top of page href="#" and links
+          // with protocols: http, ftp, tel, mailto, etc.
+          if (!href || href[0] === "#" || /^[a-z]{3,6}:/i.test(href)) {
+            return
+          }
           addEventListener(el, "click", linkClicked)
         }
       }
-
-      Array.prototype.forEach.call(
-        document.querySelectorAll('a[href^="#"]'),
-        setupLink
+      // Find a[href] tags that have "#" anywhere in the url and have
+      // not yet been processed by iframe resizer.
+      const elems = document.querySelectorAll(
+        'a[href*="#"]:not([data-iframe-resizer])'
       )
+      Array.prototype.forEach.call(elems, setupLink)
     }
 
     function bindLocationHash() {
@@ -637,6 +738,8 @@
     }
 
     return {
+      // Keep enable on for later processing when new DOM nodes are added
+      enable: inPageLinks.enable, // ADDED BY JOE
       findTarget: findTarget,
     }
   }
@@ -800,14 +903,24 @@
       imageEventTriggered(event, "imageLoadFailed", "Image load failed")
     }
 
+    const debouncedSetupInPageLinks = debounce(setupInPageLinks, 100)
+
     function mutationObserved(mutations) {
       sendSize(
         "mutationObserver",
         "mutationObserver: " + mutations[0].target + " " + mutations[0].type
       )
 
+      // ADDED BY JOE
+      mutations.forEach((mutation) => {
+        if (mutation.addedNodes.length) {
+          debouncedSetupInPageLinks()
+        }
+        addImageLoadListners(mutation)
+      })
+
       // Deal with WebKit / Blink asyncing image loading when tags are injected into the page
-      mutations.forEach(addImageLoadListners)
+      // mutations.forEach(addImageLoadListners)
     }
 
     function createMutationObserver() {
