@@ -4,6 +4,11 @@ See https://developer.chrome.com/docs/extensions/get-started/tutorial/hello-worl
 
 This extension is installed in the WebDev profile in Chrome on this laptop.
 
+This project contains a modifed version of iframeResizer.contentWindow.js that fixes
+in page links on embednotionpages.com Notion embed pages.
+
+See [scripts/iframeResizer.contentWindow.js]
+
 
 # Installing
 
