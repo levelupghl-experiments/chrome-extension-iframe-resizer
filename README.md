@@ -1,4 +1,4 @@
-# Iframe Resizer Chrome Extension Dev Mod
+# Iframe Resizer Chrome Extension Dev Kit
 
 This project contains a modifed version of iframeResizer.contentWindow.js that fixes in page links on
 embednotionpages.com Notion embed pages.
@@ -6,7 +6,7 @@ embednotionpages.com Notion embed pages.
 Use the extension as an example for developing and testing
 scripts embedded in iframes.
 
-See [scripts/iframeResizer.contentWindow.js]
+See [scripts/iframeResizer.contentWindow.js](scripts/iframeResizer.contentWindow.js)
 
 # Chrome Extension Development Tools
 
