@@ -12,7 +12,7 @@ See [scripts/iframeResizer.contentWindow.js](scripts/iframeResizer.contentWindow
 
 - [extension.js](https://github.com/cezaraugusto/extension.js) zero config cross platform extension starter kit
 - [web-ext](https://github.com/mozilla/web-ext) CLI for building & testing extensions
-- [Plasmo](https://www.plasmo.com/) make AI powered browser extensions (paid)
+- [Plasmo](https://github.com/PlasmoHQ/plasmo) browser extension dev framework with optional paid service for deployment
 - [Chrome Extension Samples](https://github.com/GoogleChrome/chrome-extensions-samples) library of extension code examples
 - [Chrome Hello World Example](https://developer.chrome.com/docs/extensions/get-started/tutorial/hello-world)
 
