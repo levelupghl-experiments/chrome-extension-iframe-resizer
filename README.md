@@ -1,13 +1,18 @@
-# This is a chrome extension test
+# Iframe Resizer Chrome Extension Dev Mod
 
-See https://developer.chrome.com/docs/extensions/get-started/tutorial/hello-world
+This project contains a modifed version of iframeResizer.contentWindow.js that fixes in page links on
+embednotionpages.com Notion embed pages.
 
-This extension is installed in the WebDev profile in Chrome on this laptop.
-
-This project contains a modifed version of iframeResizer.contentWindow.js that fixes
-in page links on embednotionpages.com Notion embed pages.
+Use the extension as an example for developing and testing
+scripts embedded in iframes.
 
 See [scripts/iframeResizer.contentWindow.js]
+
+# Chrome Extension Development Tools
+
+- [extension.js](https://github.com/cezaraugusto/extension.js) zero config cross platform extension starter kit
+- [Chrome Extension Samples](https://github.com/GoogleChrome/chrome-extensions-samples) library of extension code examples
+- [Chrome Hello World Example](https://developer.chrome.com/docs/extensions/get-started/tutorial/hello-world)
 
 
 # Installing
@@ -20,24 +25,3 @@ See [scripts/iframeResizer.contentWindow.js]
 Whenever code is changed, manually refresh the extension by
 clicking the reload icon in chrome://extensions/
 
-
-
-```json
-{
-  "name": "Hello World Extensions",
-  "description": "Base Level Extension",
-  "version": "1.0",
-  "manifest_version": 3,
-  "action": {
-    "default_popup": "hello.html",
-    "default_icon": "icon_levelup.png"
-  },
-  "content_scripts": [
-    {
-      "matches": ["https://*/*"],
-      "all_frames": true,
-      "js": ["contentScript.js"]
-    }
-  ]
-}
-```
